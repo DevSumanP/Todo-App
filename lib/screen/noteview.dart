@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:taskly/database/firebase_database.dart';
 import 'package:taskly/widgets/editor.dart';
 
-// ignore: must_be_immutable
 class NoteView extends StatefulWidget {
   final String title;
   TextAlign textAlign;
@@ -26,11 +25,17 @@ class _NoteViewState extends State<NoteView> {
   late TextEditingController _controller;
   bool _isKeyboardVisible = false;
 
+  bool isBold = false;
+  bool isItalic = false;
+  bool isUnderlined = false;
+
+  FontWeight _fontWeight = FontWeight.normal;
+  FontStyle _fontStyle = FontStyle.normal;
+
   @override
   void initState() {
     super.initState();
-    String combinedItems = widget.items;
-    _controller = TextEditingController(text: combinedItems);
+    _controller = TextEditingController(text: widget.items);
   }
 
   @override
@@ -41,15 +46,63 @@ class _NoteViewState extends State<NoteView> {
 
   void _handleTap() {
     if (_isKeyboardVisible) {
-      // Dismiss the keyboard when tapping outside the TextField
       FocusScope.of(context).unfocus();
     }
   }
 
   void _updateTextAlign(TextAlign align) {
     setState(() {
-      // Update the text alignment
       widget.textAlign = align;
+    });
+  }
+
+  void _toggleBold() {
+    final text = _controller.text;
+    final selection = _controller.selection;
+
+    final selectedText = text.substring(selection.start, selection.end);
+
+    setState(() {
+      // Toggle the bold state
+      isBold = !isBold;
+      _fontWeight = isBold ? FontWeight.bold : FontWeight.normal;
+
+      // Replace the selected text with the updated text
+      _controller.text = text.replaceRange(
+        selection.start,
+        selection.end,
+        selectedText, // You can add bold formatting here if necessary
+      );
+
+      // Restore the cursor position
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: selection.start + selectedText.length),
+      );
+    });
+  }
+
+  void _toggleItalic() {
+    final text = _controller.text;
+    final selection = _controller.selection;
+
+    final selectedText = text.substring(selection.start, selection.end);
+
+    setState(() {
+      // Toggle the italic state
+      isItalic = !isItalic;
+      _fontStyle = isItalic ? FontStyle.italic : FontStyle.normal;
+
+      // Replace the selected text with the updated text
+      _controller.text = text.replaceRange(
+        selection.start,
+        selection.end,
+        selectedText, // You can add italic formatting here if necessary
+      );
+
+      // Restore the cursor position
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: selection.start + selectedText.length),
+      );
     });
   }
 
@@ -63,19 +116,19 @@ class _NoteViewState extends State<NoteView> {
             leading: IconButton(
               icon: const Icon(EneftyIcons.arrow_left_4_outline),
               onPressed: () {
+                if (_controller.text != widget.items) {
+                  FirebaseService().updateItem(widget.id, _controller.text);
+                }
                 Navigator.pop(context);
               },
             ),
-            actions: [
-              const Icon(EneftyIcons.clipboard_text_outline, size: 24),
-              const SizedBox(width: 20),
-              const Icon(EneftyIcons.heart_outline, size: 24),
-              const SizedBox(width: 20),
-              GestureDetector(
-                  onTap: () {},
-                  child: const Icon(EneftyIcons.document_download_outline,
-                      size: 24)),
-              const SizedBox(width: 16),
+            actions: const [
+              Icon(EneftyIcons.clipboard_text_outline, size: 24),
+              SizedBox(width: 20),
+              Icon(EneftyIcons.heart_outline, size: 24),
+              SizedBox(width: 20),
+              Icon(EneftyIcons.document_download_outline, size: 24),
+              SizedBox(width: 16),
             ],
           ),
           body: SingleChildScrollView(
@@ -92,40 +145,37 @@ class _NoteViewState extends State<NoteView> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: TextField(
-                      textAlign: widget.textAlign,
-                      controller: _controller,
-                      keyboardType: TextInputType.multiline,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                      maxLines: null,
-                      style: const TextStyle(
-                        fontFamily: 'Product Sans',
-                        fontSize: 17,
-                      ),
-                      onChanged: (value) {
-                        // Update the controller value as the user types
-                        _controller.text = value;
-                      },
-                      onTap: () {
-                        setState(() {
-                          _isKeyboardVisible = true;
-                        });
-                      },
-                      onEditingComplete: () {
-                        setState(() {
-                          _isKeyboardVisible = false;
-                        });
-                      },
+                  TextField(
+                    textAlign: widget.textAlign,
+                    controller: _controller,
+                    keyboardType: TextInputType.multiline,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
                     ),
+                    maxLines: null,
+                    style: TextStyle(
+                      fontFamily: 'Product Sans',
+                      fontSize: 17,
+                      fontWeight: _fontWeight,
+                      fontStyle: _fontStyle,
+                    ),
+                    onChanged: (value) {
+                      _controller.text = value;
+                    },
+                    onTap: () {
+                      setState(() {
+                        _isKeyboardVisible = true;
+                      });
+                    },
+                    onEditingComplete: () {
+                      setState(() {
+                        _isKeyboardVisible = false;
+                      });
+                    },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Editor(
+                    controller: _controller,
                     justify: () {
                       _updateTextAlign(TextAlign.justify);
                     },
@@ -138,6 +188,8 @@ class _NoteViewState extends State<NoteView> {
                     right: () {
                       _updateTextAlign(TextAlign.right);
                     },
+                    bold: _toggleBold,
+                    italic: _toggleItalic,
                   ),
                 ],
               ),

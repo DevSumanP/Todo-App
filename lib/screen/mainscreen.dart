@@ -14,7 +14,10 @@ class MainScreen extends StatelessWidget {
           onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const NewNote(textAlign: TextAlign.left),
+                builder: (context) => const NewNote(
+                  textAlign: TextAlign.left,
+                  initialTextAlign: TextAlign.left,
+                ),
               )),
           child: const Icon(Icons.add),
         ),

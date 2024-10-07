@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'flutter-task-app-c786c.appspot.com',
     iosBundleId: 'com.example.taskly',
   );
+
 }

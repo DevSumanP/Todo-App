@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:lottie/lottie.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -19,7 +18,7 @@ class _NoteListState extends State<NoteList> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  bool _isLoading = true;
+  final bool _isLoading = true;
 
   final FirebaseService _firebaseService = FirebaseService();
 
@@ -40,20 +39,29 @@ class _NoteListState extends State<NoteList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () {
-              print(GetColor.getRandomColor());
-            },
-            child: const Text(
-              'AstroNote',
-              style: TextStyle(
-                fontFamily: 'Product Sans',
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
+          Row(
+            children: [
+              Image.asset(
+                './assets/images/Astro.png',
+                height: 30,
+                width: 30,
               ),
-            ),
+              GestureDetector(
+                onTap: () {
+                  print(GetColor.getRandomColor());
+                },
+                child: const Text(
+                  'AstroNote',
+                  style: TextStyle(
+                    fontFamily: 'Product Sans',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 0),
           TableCalendar(
             firstDay: DateTime.utc(2010, 10, 20),
             lastDay: DateTime.utc(2040, 10, 20),
@@ -67,14 +75,14 @@ class _NoteListState extends State<NoteList> {
               ),
             ),
             calendarStyle: const CalendarStyle(
-              todayDecoration: BoxDecoration(
-                color: Color(0xD41A1A1A),
-                shape: BoxShape.circle,
-              ),
+              holidayDecoration: BoxDecoration(
+                  border: Border.fromBorderSide(
+                      BorderSide(color: Color(0xFF9FA8DA), width: 1)),
+                  shape: BoxShape.circle),
               todayTextStyle: TextStyle(
                 fontSize: 16,
                 color: Colors.white,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
             selectedDayPredicate: (day) {
@@ -214,12 +222,12 @@ class _NoteListState extends State<NoteList> {
                     itemBuilder: (BuildContext context, int index) {
                       final DocumentSnapshot documentSnapshot =
                           snapshot.data!.docs[index];
-                      Color color = Color(documentSnapshot['color']);
+
                       return NotesCard(
                         id: documentSnapshot.id,
                         title: documentSnapshot['title'],
                         items: documentSnapshot['items'],
-                        color: documentSnapshot['color'],
+                        color: Color(documentSnapshot['color']),
                       );
                     },
                   );

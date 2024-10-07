@@ -5,11 +5,13 @@ import 'package:taskly/utils/color_utlis.dart';
 import 'package:taskly/widgets/editor.dart';
 
 class NewNote extends StatefulWidget {
-  final TextAlign textAlign;
+  final TextAlign
+      initialTextAlign; // Renamed to clarify it's the initial alignment
 
   const NewNote({
     super.key,
-    required this.textAlign,
+    required this.initialTextAlign,
+    required TextAlign textAlign,
   });
 
   @override
@@ -20,13 +22,16 @@ class NewNote extends StatefulWidget {
 class _NewNoteState extends State<NewNote> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
-  final bool _isKeyboardVisible = false;
+  bool _isKeyboardVisible = false;
+  late TextAlign _currentTextAlign; // New variable for current alignment
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
     _contentController = TextEditingController();
+    _currentTextAlign =
+        widget.initialTextAlign; // Initialize the current alignment
   }
 
   @override
@@ -43,6 +48,12 @@ class _NewNoteState extends State<NewNote> {
     }
   }
 
+  void _updateTextAlign(TextAlign align) {
+    setState(() {
+      _currentTextAlign = align; // Update the current text alignment
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -57,9 +68,12 @@ class _NewNoteState extends State<NewNote> {
                         _contentController.text.isEmpty)
                     ? Navigator.pop(context)
                     : {
-                        FirebaseService().addItem(_titleController.text,
-                            _contentController.text, GetColor.getRandomColor()),
-                        Navigator.pop(context)
+                        FirebaseService().addItem(
+                          _titleController.text,
+                          _contentController.text,
+                          GetColor.getRandomColor(),
+                        ),
+                        Navigator.pop(context),
                       };
               },
             ),
@@ -95,7 +109,7 @@ class _NewNoteState extends State<NewNote> {
                   const SizedBox(height: 0),
                   TextField(
                     controller: _contentController,
-                    textAlign: widget.textAlign,
+                    textAlign: _currentTextAlign, // Use the current alignment
                     keyboardType: TextInputType.multiline,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -106,21 +120,25 @@ class _NewNoteState extends State<NewNote> {
                       fontFamily: 'Product Sans',
                       fontSize: 17,
                     ),
+                    onTap: () {
+                      setState(() {
+                        _isKeyboardVisible = true;
+                      });
+                    },
+                    onEditingComplete: () {
+                      setState(() {
+                        _isKeyboardVisible = false;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
                   Editor(
-                    justify: () {
-                      // Implement text alignment functionality if needed
-                    },
-                    center: () {
-                      // Implement text alignment functionality if needed
-                    },
-                    left: () {
-                      // Implement text alignment functionality if needed
-                    },
-                    right: () {
-                      // Implement text alignment functionality if needed
-                    },
+                    justify: () => _updateTextAlign(TextAlign.justify),
+                    center: () => _updateTextAlign(TextAlign.center),
+                    left: () => _updateTextAlign(TextAlign.left),
+                    right: () => _updateTextAlign(TextAlign.right),
+                    controller:
+                        _contentController, // Pass the content controller here
                   ),
                 ],
               ),
