@@ -73,7 +73,7 @@ The app provides a rich text editor for users to create and format their notes. 
 
 ## 🎥 Photos
 <div>
-  <img src="assets/images/screen1.jpg" alt="Image 1" width="200" height="450" style="display: inline-block; margin-right: 10px;"/>
-  <img src="assets/images/screen2.jpg" alt="Image 2" width="200" height="450" style="display: inline-block; margin-right: 10px;"/>
-  <img src="assets/images/screen3.jpg" alt="Image 2" width="200" height="450" style="display: inline-block;"/>
+  <img src="assets/images/Screen1.jpg" alt="Image 1" width="200" height="450" style="display: inline-block; margin-right: 10px;"/>
+  <img src="assets/images/Screen2.jpg" alt="Image 2" width="200" height="450" style="display: inline-block; margin-right: 10px;"/>
+  <img src="assets/images/Screen3.jpg" alt="Image 2" width="200" height="450" style="display: inline-block;"/>
 </div>
